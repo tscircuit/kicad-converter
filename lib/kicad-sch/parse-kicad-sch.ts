@@ -1,5 +1,5 @@
-import { SExpr } from "../common/parse-sexpr"
-import {
+import type { SExpr } from "../common/parse-sexpr"
+import type {
   At,
   Effects,
   Fill,
