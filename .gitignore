@@ -176,3 +176,6 @@ dist
 
 .vscode
 .aider*
+
+test-artifacts*
+*.diff.png

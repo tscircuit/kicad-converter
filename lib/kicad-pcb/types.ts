@@ -159,7 +159,7 @@ export interface FpText {
 export interface Pad {
   number: string
   type: string
-  shape: string
+  shape: "roundrect"
   at: [number, number]
   size: [number, number]
   layers: string[]
