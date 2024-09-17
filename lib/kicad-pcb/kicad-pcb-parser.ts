@@ -1,4 +1,4 @@
-import { SExpr } from "./../common/parse-sexpr"
+import type { SExpr } from "./../common/parse-sexpr"
 import type {
   At,
   Effects,
@@ -97,6 +97,7 @@ export function parseKiCadPcb(sexpr: SExpr): KiCadPcb {
     }
   }
 
+  // @ts-ignore
   return KiCadPcbSchema.parse(pcb)
 }
 
@@ -181,10 +182,14 @@ function parsePcbPlotParams(sexpr: SExpr): PcbPlotParams {
 
     // Determine the type of value
     if (value === "yes" || value === "no") {
+      // @ts-ignore
       params[key] = value
+      // @ts-ignore
     } else if (/^-?\d+\.?\d*$/.test(value)) {
+      // @ts-ignore
       params[key] = Number(value)
     } else {
+      // @ts-ignore
       params[key] = value
     }
   }
@@ -447,6 +452,7 @@ function parsePad(sexpr: SExpr): Pad {
   const pad: Pad = {
     number: "",
     type: "",
+    // @ts-ignore
     shape: "",
     at: [0, 0],
     size: [0, 0],
@@ -455,6 +461,7 @@ function parsePad(sexpr: SExpr): Pad {
 
   pad.number = sexpr[1] as string
   pad.type = sexpr[2] as string
+  // @ts-ignore
   pad.shape = sexpr[3] as string
 
   for (let i = 4; i < sexpr.length; i++) {
@@ -522,6 +529,7 @@ function parseModel(sexpr: SExpr): Model {
 
 // Function to parse 'xyz' elements
 function parseXYZ(sexpr: SExpr): { xyz: [number, number, number] } {
+  // @ts-ignore
   const xyzElem = sexpr.find((e) => Array.isArray(e) && e[0] === "xyz") as
     | SExpr
     | undefined

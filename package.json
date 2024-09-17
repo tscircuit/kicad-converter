@@ -6,7 +6,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsup-node ./lib/index.ts --format esm --sourcemap",
+    "build": "tsup-node ./lib/index.ts --format esm --sourcemap --dts",
     "test": "bun test"
   },
   "devDependencies": {
