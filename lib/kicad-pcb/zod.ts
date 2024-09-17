@@ -7,7 +7,7 @@ export const yesnobool = z
 // General settings of the PCB
 export const GeneralSchema = z.object({
   thickness: z.number(),
-  legacy_teardrops: z.enum(["no", "yes"]),
+  legacy_teardrops: yesnobool,
 })
 export type ZodGeneral = z.infer<typeof GeneralSchema>
 

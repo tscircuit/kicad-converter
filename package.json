@@ -4,7 +4,10 @@
   "type": "module",
   "devDependencies": {
     "@biomejs/biome": "^1.9.1",
+    "@tscircuit/soup": "^0.0.71",
     "@types/bun": "latest",
+    "bun-match-svg": "^0.0.3",
+    "circuit-to-svg": "^0.0.32",
     "tsup": "^8.2.4",
     "zod": "^3.23.8"
   },
