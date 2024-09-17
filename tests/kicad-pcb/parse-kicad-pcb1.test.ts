@@ -1,5 +1,6 @@
 import { test, expect } from "bun:test"
-import { parseSExpr, parseKiCadPcb } from "lib/kicad-pcb/kicad-pcb-parser"
+import { parseKiCadPcb } from "lib/kicad-pcb/kicad-pcb-parser"
+import { parseSExpr } from "lib/common/parse-sexpr"
 import { KiCadPcbSchema } from "lib/kicad-pcb/zod"
 // @ts-ignore
 import testKiCadPcb from "../assets/testkicadproject/testkicadproject.kicad_pcb" with {
