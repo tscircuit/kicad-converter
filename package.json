@@ -1,7 +1,13 @@
 {
   "name": "kicad-converter",
-  "module": "index.ts",
-  "type": "module",
+  "main": "dist/index.mjs",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup-node ./lib/index.ts --format esm --sourcemap",
+    "test": "bun test"
+  },
   "devDependencies": {
     "@biomejs/biome": "^1.9.1",
     "@tscircuit/core": "^0.0.64",
