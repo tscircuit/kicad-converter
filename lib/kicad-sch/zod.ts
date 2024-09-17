@@ -190,7 +190,7 @@ export const KicadSchSchema = z.object({
 })
 
 export {
-  YesNo,
+  YesNo as YesNoSchema,
   PointSchema,
   AtSchema,
   FontSchema,
