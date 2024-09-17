@@ -3,7 +3,10 @@
   "module": "index.ts",
   "type": "module",
   "devDependencies": {
-    "@types/bun": "latest"
+    "@biomejs/biome": "^1.9.1",
+    "@types/bun": "latest",
+    "tsup": "^8.2.4",
+    "zod": "^3.23.8"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
