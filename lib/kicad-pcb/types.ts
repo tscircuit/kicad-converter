@@ -159,7 +159,8 @@ export interface FpText {
 export interface Pad {
   number: string
   type: "thru_hole" | "smd"
-  shape: "roundrect"
+  drill?: number
+  shape: "rect" | "roundrect" | "oval" | "circle"
   at: [number, number]
   size: [number, number]
   layers: string[]

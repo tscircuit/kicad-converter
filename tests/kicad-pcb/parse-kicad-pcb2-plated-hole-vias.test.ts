@@ -1,7 +1,6 @@
 import { test, expect } from "bun:test"
 import { parseKiCadPcb } from "lib/kicad-pcb/kicad-pcb-parser"
 import { parseSExpr } from "lib/common/parse-sexpr"
-import { KiCadPcbSchema } from "lib/kicad-pcb/zod"
 // @ts-ignore
 import testKiCadPcb2 from "../assets/platedholeandvias/platedholeandvias.kicad_pcb" with {
   type: "text",
@@ -10,8 +9,6 @@ import { convertKiCadPcbToCircuitJson } from "lib/kicad-pcb/kicad-pcb-to-circuit
 import { convertCircuitJsonToKiCadPcb } from "lib/kicad-pcb/convert-circuit-json-to-kicad-pcb"
 import { convertKiCadPcbToSExprString } from "lib/kicad-pcb/convert-kicad-pcb-to-sexpr-string"
 import { circuitJsonToPcbSvg } from "circuit-to-svg"
-import { any_circuit_element } from "@tscircuit/soup"
-import { z } from "zod"
 
 test("parse-kicad-pcb2 - plated hole and vias", () => {
   const sexpr = parseSExpr(testKiCadPcb2)
