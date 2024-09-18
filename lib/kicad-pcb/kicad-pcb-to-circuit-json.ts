@@ -82,54 +82,71 @@ function convertPadToPcbPad(
     for (const kicadLayer of pad.layers) {
       const layer = mapLayer(kicadLayer)
       if (!layer) continue
-      if (pad.type === "smd") {
-        const pcb_smtpad = CJ.pcb_smtpad.safeParse({
-          type: "pcb_smtpad",
-          pcb_smtpad_id: pad.uuid || generateUniqueId(),
-          shape: padShape === "roundrect" ? "rect" : padShape,
-          x: position.x,
-          y: position.y,
-          width: pad.size[0],
-          height: pad.size[1],
-          layer: layer,
-          port_hints: [pad.number],
-          pcb_component_id: footprint.uuid || generateUniqueId(),
-          pcb_port_id: pad.uuid || generateUniqueId(),
-        })
+      const pcb_smtpad = CJ.pcb_smtpad.safeParse({
+        type: "pcb_smtpad",
+        pcb_smtpad_id: pad.uuid || generateUniqueId(),
+        shape: padShape === "roundrect" ? "rect" : padShape,
+        x: position.x,
+        y: position.y,
+        width: pad.size[0],
+        height: pad.size[1],
+        layer: layer,
+        port_hints: [pad.number],
+        pcb_component_id: footprint.uuid || generateUniqueId(),
+        pcb_port_id: pad.uuid || generateUniqueId(),
+      })
 
-        if (pcb_smtpad.success) {
-          pads.push(pcb_smtpad.data)
-        } else {
-          console.warn(
-            `Failed to parse pcb_smtpad "${pad.uuid}"`,
-            pcb_smtpad.error,
-          )
-        }
+      if (pcb_smtpad.success) {
+        pads.push(pcb_smtpad.data)
+      } else {
+        console.warn(
+          `Failed to parse pcb_smtpad "${pad.uuid}"`,
+          pcb_smtpad.error,
+        )
       }
     }
-  }
-  if (pad.type === "thru_hole") {
-    // For through-hole pads, assuming hole size is specified in pad size
-    const pcb_plated_hole = CJ.pcb_plated_hole.safeParse({
-      type: "pcb_plated_hole",
-      pcb_plated_hole_id: pad.uuid || generateUniqueId(),
-      shape: padShape,
-      x: position.x,
-      y: position.y,
-      outer_width: `${pad.size[0]}mm`,
-      outer_height: `${pad.size[1]}mm`,
-      hole_width: `${pad.size[0] * 0.5}mm`, // Assuming hole is half the pad size
-      hole_height: `${pad.size[1] * 0.5}mm`,
-      layers: pad.layers.map(mapLayer).filter(Boolean),
-      port_hints: [pad.number],
-      pcb_component_id: footprint.uuid || generateUniqueId(),
-      pcb_port_id: pad.uuid || generateUniqueId(),
-    })
+  } else if (pad.type === "thru_hole") {
+    const isCircular = pad.size[0] === pad.size[1]
+    const pcb_plated_hole = CJ.pcb_plated_hole.safeParse(
+      isCircular
+        ? {
+            type: "pcb_plated_hole",
+            pcb_plated_hole_id: pad.uuid || generateUniqueId(),
+            shape: "circle",
+            x: position.x,
+            y: position.y,
+            outer_diameter: pad.size[0],
+            hole_diameter: pad.drill || pad.size[0] * 0.5, // Use drill size if available, otherwise assume half the pad size
+            layers: pad.layers.map(mapLayer).filter(Boolean) as CJ.LayerRef[],
+            port_hints: [pad.number],
+            pcb_component_id: footprint.uuid || generateUniqueId(),
+            pcb_port_id: pad.uuid || generateUniqueId(),
+          }
+        : {
+            type: "pcb_plated_hole",
+            pcb_plated_hole_id: pad.uuid || generateUniqueId(),
+            shape: padShape === "oval" ? "oval" : "pill",
+            x: position.x,
+            y: position.y,
+            outer_width: pad.size[0],
+            outer_height: pad.size[1],
+            hole_width: pad.drill || pad.size[0] * 0.5,
+            hole_height: pad.drill || pad.size[1] * 0.5,
+            layers: pad.layers.map(mapLayer).filter(Boolean) as CJ.LayerRef[],
+            port_hints: [pad.number],
+            pcb_component_id: footprint.uuid || generateUniqueId(),
+            pcb_port_id: pad.uuid || generateUniqueId(),
+          },
+    )
 
     if (pcb_plated_hole.success) {
       pads.push(pcb_plated_hole.data)
+    } else {
+      console.warn(
+        `Failed to parse pcb_plated_hole "${pad.uuid}"`,
+        pcb_plated_hole.error,
+      )
     }
-    console.warn(`Failed to parse pcb_plated_hole "${pad.uuid}"`)
   }
   return pads
 }

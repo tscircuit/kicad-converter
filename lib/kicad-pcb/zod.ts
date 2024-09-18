@@ -147,7 +147,7 @@ export type ZodNetReference = z.infer<typeof NetReferenceSchema>
 // Pad within a footprint
 export const PadSchema = z.object({
   number: z.string(),
-  type: z.string(),
+  type: z.enum(["thru_hole", "smd"]),
   shape: z.string(),
   at: z.tuple([z.number(), z.number()]),
   size: z.tuple([z.number(), z.number()]),
