@@ -248,10 +248,11 @@ export function convertCircuitJsonToKiCadPcb(
 function convertPcbViaToVia(via: CJ.PCBVia): Via {
   return {
     at: [via.x, via.y],
-    size: parseFloat(via.outer_diameter),
-    drill: parseFloat(via.hole_diameter),
+    size: via.outer_diameter,
+    drill: via.hole_diameter,
     layers: via.layers,
     net: 0, // Assuming default net 0, update if net information is available
+    uuid: `via_${via.x}_${via.y}`,
   }
 }
 
