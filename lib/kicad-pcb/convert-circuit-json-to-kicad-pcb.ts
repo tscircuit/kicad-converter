@@ -1,9 +1,17 @@
 import * as CJ from "@tscircuit/soup"
 import type { KiCadPcb, Footprint, Pad, Segment, Net, Via } from "./types"
+import { transformPCBElements } from "@tscircuit/soup-util"
+import { scale } from "transformation-matrix"
 
 export function convertCircuitJsonToKiCadPcb(
   circuitJson: CJ.AnyCircuitElement[],
 ): KiCadPcb {
+  // Flip Y axis to match KiCad
+  circuitJson = transformPCBElements(
+    JSON.parse(JSON.stringify(circuitJson)),
+    scale(1, -1),
+  )
+
   const kicadPcb: KiCadPcb = {
     version: 20240108,
     generator: "tscircuit",

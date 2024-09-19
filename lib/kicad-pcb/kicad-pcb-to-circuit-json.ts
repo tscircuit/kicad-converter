@@ -1,5 +1,7 @@
 import type { Footprint, GrRect, KiCadPcb, Pad, Segment, Via } from "./types"
 import * as CJ from "@tscircuit/soup"
+import { transformPCBElements } from "@tscircuit/soup-util"
+import { scale } from "transformation-matrix"
 
 export function convertKiCadPcbToCircuitJson(
   kicadPcb: KiCadPcb,
@@ -46,6 +48,9 @@ export function convertKiCadPcbToCircuitJson(
   //     circuitJsonArray.push(silkscreenRect)
   //   }
   // }
+
+  // Flip Y axis to match KiCad
+  transformPCBElements(circuitJsonArray, scale(1, -1))
 
   return circuitJsonArray
 }
