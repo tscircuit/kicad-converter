@@ -18,6 +18,7 @@ import type {
   Segment,
   Setup,
   Stroke,
+  Via,
 } from "./types"
 import { KiCadPcbSchema } from "./zod"
 
@@ -49,6 +50,7 @@ export function parseKiCadPcb(sexpr: SExpr): KiCadPcb {
     footprints: [],
     gr_rects: [],
     segments: [],
+    vias: [],
   }
 
   // Process each element in the root s-expression
@@ -90,6 +92,9 @@ export function parseKiCadPcb(sexpr: SExpr): KiCadPcb {
         break
       case "segment":
         pcb.segments.push(parseSegment(elem))
+        break
+      case "via":
+        pcb.vias.push(parseVia(elem))
         break
       default:
         // Handle other elements as needed
@@ -256,17 +261,20 @@ function parseFootprint(sexpr: SExpr): Footprint {
       case "model":
         footprint.model = parseModel(elem)
         break
+      case "path":
+        footprint.path = elem[1] as string
+        break
+      case "sheetname":
+        footprint.sheetname = elem[1] as string
+        break
+      case "sheetfile":
+        footprint.sheetfile = elem[1] as string
+        break
+      case "attr":
+        footprint.attr = elem[1] as string
+        break
       default:
-        // Handle other keys like 'path', 'sheetname', 'attr', etc.
-        if (key === "path") {
-          footprint.path = elem[1] as string
-        } else if (key === "sheetname") {
-          footprint.sheetname = elem[1] as string
-        } else if (key === "sheetfile") {
-          footprint.sheetfile = elem[1] as string
-        } else if (key === "attr") {
-          footprint.attr = elem[1] as string
-        }
+        console.log(`Warning: Unhandled key in footprint: ${key}`)
         break
     }
   }
@@ -451,7 +459,7 @@ function parseFpText(sexpr: SExpr): FpText {
 function parsePad(sexpr: SExpr): Pad {
   const pad: Pad = {
     number: "",
-    type: "",
+    type: "" as any,
     // @ts-ignore
     shape: "",
     at: [0, 0],
@@ -460,7 +468,7 @@ function parsePad(sexpr: SExpr): Pad {
   }
 
   pad.number = sexpr[1] as string
-  pad.type = sexpr[2] as string
+  pad.type = sexpr[2] as "thru_hole" | "smd"
   // @ts-ignore
   pad.shape = sexpr[3] as string
 
@@ -470,6 +478,9 @@ function parsePad(sexpr: SExpr): Pad {
 
     const key = elem[0]
     switch (key) {
+      case "drill":
+        pad.drill = Number(elem[1])
+        break
       case "at":
         pad.at = [Number(elem[1]), Number(elem[2])]
         break
@@ -623,4 +634,47 @@ function parseSegment(sexpr: SExpr): Segment {
   }
 
   return segment
+}
+
+// Function to parse 'via' elements
+function parseVia(sexpr: SExpr): Via {
+  const via: Via = {
+    at: [0, 0],
+    size: 0,
+    drill: 0,
+    layers: [],
+    net: 0,
+  }
+
+  for (let i = 1; i < sexpr.length; i++) {
+    const elem = sexpr[i]
+    if (!Array.isArray(elem)) continue
+
+    const key = elem[0]
+    switch (key) {
+      case "at":
+        via.at = [Number(elem[1]), Number(elem[2])]
+        break
+      case "size":
+        via.size = Number(elem[1])
+        break
+      case "drill":
+        via.drill = Number(elem[1])
+        break
+      case "layers":
+        via.layers = elem.slice(1) as string[]
+        break
+      case "net":
+        via.net = Number(elem[1])
+        break
+      case "uuid":
+        via.uuid = elem[1] as string
+        break
+      default:
+        // Handle other properties if needed
+        break
+    }
+  }
+
+  return via
 }

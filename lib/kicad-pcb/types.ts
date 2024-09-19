@@ -13,6 +13,16 @@ export interface KiCadPcb {
   footprints: Footprint[]
   gr_rects: GrRect[]
   segments: Segment[]
+  vias: Via[]
+}
+
+export interface Via {
+  at: [number, number]
+  size: number
+  drill: number
+  layers: string[]
+  net: number
+  uuid: string
 }
 
 // General settings of the Pcb

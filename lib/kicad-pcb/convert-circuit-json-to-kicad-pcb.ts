@@ -1,5 +1,5 @@
 import * as CJ from "@tscircuit/soup"
-import type { KiCadPcb, Footprint, Pad, Segment, Net } from "./types"
+import type { KiCadPcb, Footprint, Pad, Segment, Net, Via } from "./types"
 
 export function convertCircuitJsonToKiCadPcb(
   circuitJson: CJ.AnyCircuitElement[],
@@ -211,6 +211,7 @@ export function convertCircuitJsonToKiCadPcb(
     nets: [],
     footprints: [],
     segments: [],
+    vias: [],
   }
 
   const netMap = new Map<string, number>()
@@ -229,6 +230,9 @@ export function convertCircuitJsonToKiCadPcb(
         )
         netCounter = Math.max(netCounter, ...Array.from(netMap.values())) + 1
         break
+      case "pcb_via":
+        kicadPcb.vias.push(convertPcbViaToVia(element as CJ.PCBVia))
+        break
       // Add more cases for other element types as needed
     }
   })
@@ -239,6 +243,16 @@ export function convertCircuitJsonToKiCadPcb(
   })
 
   return kicadPcb
+}
+
+function convertPcbViaToVia(via: CJ.PCBVia): Via {
+  return {
+    at: [via.x, via.y],
+    size: parseFloat(via.outer_diameter),
+    drill: parseFloat(via.hole_diameter),
+    layers: via.layers,
+    net: 0, // Assuming default net 0, update if net information is available
+  }
 }
 
 function convertPcbComponentToFootprint(

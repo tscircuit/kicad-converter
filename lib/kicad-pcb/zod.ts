@@ -223,6 +223,17 @@ export const SegmentSchema = z.object({
 })
 export type ZodSegment = z.infer<typeof SegmentSchema>
 
+// Via schema
+export const ViaSchema = z.object({
+  at: z.tuple([z.number(), z.number()]),
+  size: z.number(),
+  drill: z.number(),
+  layers: z.array(z.string()),
+  net: z.number(),
+  uuid: z.string(),
+})
+export type ZodVia = z.infer<typeof ViaSchema>
+
 // Root schema representing the entire KiCad PCB
 export const KiCadPcbSchema = z.object({
   version: z.number(),
@@ -236,5 +247,6 @@ export const KiCadPcbSchema = z.object({
   footprints: z.array(FootprintSchema),
   gr_rects: z.array(GrRectSchema),
   segments: z.array(SegmentSchema),
+  vias: z.array(ViaSchema), // Add this line
 })
 export type ZodKiCadPcb = z.infer<typeof KiCadPcbSchema>
