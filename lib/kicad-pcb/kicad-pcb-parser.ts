@@ -644,6 +644,7 @@ function parseVia(sexpr: SExpr): Via {
     drill: 0,
     layers: [],
     net: 0,
+    uuid: "",
   }
 
   for (let i = 1; i < sexpr.length; i++) {
