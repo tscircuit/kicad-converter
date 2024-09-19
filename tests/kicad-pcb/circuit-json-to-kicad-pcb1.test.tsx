@@ -4,7 +4,7 @@ import { circuitJsonToPcbSvg } from "circuit-to-svg"
 import { convertCircuitJsonToKiCadPcb } from "lib/kicad-pcb/convert-circuit-json-to-kicad-pcb"
 import { convertKiCadPcbToSExprString } from "lib/kicad-pcb/convert-kicad-pcb-to-sexpr-string"
 
-test("circuit json to kicad pcb", () => {
+test("circuit json to kicad pcb1", () => {
   const circuit = new Circuit()
 
   circuit.add(
