@@ -1,4 +1,4 @@
-import type { Footprint, GrRect, KiCadPcb, Pad, Segment } from "./types"
+import type { Footprint, GrRect, KiCadPcb, Pad, Segment, Via } from "./types"
 import * as CJ from "@tscircuit/soup"
 
 export function convertKiCadPcbToCircuitJson(
@@ -29,6 +29,13 @@ export function convertKiCadPcbToCircuitJson(
       const segments = segmentsByNet[netId]
       const pcbTraces = convertSegmentsToPcbTraces(segments, netId)
       circuitJsonArray.push(...pcbTraces)
+    }
+  }
+
+  if (kicadPcb.vias) {
+    for (const via of kicadPcb.vias) {
+      const pcbVia = convertViaToPcbVia(via)
+      circuitJsonArray.push(pcbVia)
     }
   }
 
@@ -222,6 +229,20 @@ function convertGrRectToSilkscreen(grRect: GrRect) {
   })
 }
 
+// Convert KiCad Via to pcb_via
+function convertViaToPcbVia(via: Via): CJ.PCBVia {
+  return CJ.pcb_via.parse({
+    type: "pcb_via",
+    x: `${via.at[0]}mm`,
+    y: `${via.at[1]}mm`,
+    outer_diameter: `${via.size}mm`,
+    hole_diameter: `${via.drill}mm`,
+    layers: via.layers
+      .map(mapLayer)
+      .filter((layer): layer is CJ.LayerRef => layer !== null),
+  })
+}
+
 // Map KiCad layer names to CircuitJSON layer references
 function mapLayer(kicadLayer: string): CJ.LayerRef | null {
   const layerMap: { [key: string]: CJ.LayerRef } = {
@@ -229,7 +250,10 @@ function mapLayer(kicadLayer: string): CJ.LayerRef | null {
     "B.Cu": "bottom",
     "F.SilkS": "top",
     "B.SilkS": "bottom",
-    // Add other necessary mappings
+    // Add other necessary mappings for via layers
+    "In1.Cu": "inner1",
+    "In2.Cu": "inner2",
+    // ... add more inner layers as needed
   }
   return layerMap[kicadLayer] ?? null
 }

@@ -18,7 +18,13 @@ test("parse-kicad-pcb2 - plated hole and vias", () => {
   expect(kicadPcb.layers).toBeDefined()
   expect(kicadPcb.layers.length).toBe(29)
 
+  expect(kicadPcb.vias).toHaveLength(1)
+
   const circuitJson = convertKiCadPcbToCircuitJson(kicadPcb)
+
+  const vias = circuitJson.filter((elm) => elm.type === "pcb_via")
+
+  expect(vias).toHaveLength(1)
 
   expect(circuitJsonToPcbSvg(circuitJson)).toMatchSvgSnapshot(import.meta.path)
 
