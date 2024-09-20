@@ -1,11 +1,11 @@
 import { test, expect } from "bun:test"
-import { parseKiCadPcb } from "lib/kicad-pcb/kicad-pcb-parser"
+import { parseKiCadPcb } from "lib/kicad-pcb/parse-kicad-pcb-sexpr"
 import { parseSExpr } from "lib/common/parse-sexpr"
 // @ts-ignore
 import testKiCadPcb2 from "../assets/platedholeandvias/platedholeandvias.kicad_pcb" with {
   type: "text",
 }
-import { convertKiCadPcbToCircuitJson } from "lib/kicad-pcb/kicad-pcb-to-circuit-json"
+import { convertKiCadPcbToCircuitJson } from "lib/kicad-pcb/convert-kicad-pcb-to-circuit-json"
 import { convertCircuitJsonToKiCadPcb } from "lib/kicad-pcb/convert-circuit-json-to-kicad-pcb"
 import { convertKiCadPcbToSExprString } from "lib/kicad-pcb/convert-kicad-pcb-to-sexpr-string"
 import { circuitJsonToPcbSvg } from "circuit-to-svg"
