@@ -24,5 +24,8 @@
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@tscircuit/soup-util": "^0.0.28"
   }
 }
