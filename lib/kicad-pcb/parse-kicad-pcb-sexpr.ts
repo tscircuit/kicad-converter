@@ -1,4 +1,4 @@
-import type { SExpr } from "./../common/parse-sexpr"
+import type { SExpr } from "../common/parse-sexpr"
 import type {
   At,
   Effects,
