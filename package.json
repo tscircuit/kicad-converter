@@ -12,7 +12,7 @@
   "devDependencies": {
     "@biomejs/biome": "^1.9.2",
     "@tscircuit/core": "^0.0.64",
-    "@tscircuit/soup": "^0.0.71",
+    "@tscircuit/soup": "^0.0.72",
     "@types/bun": "latest",
     "@types/react": "^18.3.6",
     "bun-match-svg": "^0.0.3",
