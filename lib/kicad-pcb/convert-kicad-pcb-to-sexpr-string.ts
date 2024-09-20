@@ -127,6 +127,10 @@ function convertSegmentToSExpr(segment: Segment): string {
   return `  (segment (start ${segment.start[0]} ${segment.start[1]}) (end ${segment.end[0]} ${segment.end[1]}) (width ${segment.width}) (layer "${segment.layer}") (net ${segment.net}))`
 }
 
+function surroundWithQuotes(value: string): string {
+  return `"${value}"`
+}
+
 function convertViaToSExpr(via: Via): string {
-  return `  (via (at ${via.at[0]} ${via.at[1]}) (size ${via.size}) (drill ${via.drill}) (layers ${via.layers.join(" ")}) (net ${via.net})${via.uuid ? ` (uuid ${via.uuid})` : ""})`
+  return `  (via (at ${via.at[0]} ${via.at[1]}) (size ${via.size}) (drill ${via.drill}) (layers ${via.layers.map(surroundWithQuotes).join(" ")}) (net ${via.net})${via.uuid ? ` (uuid "${via.uuid}")` : ""})`
 }
