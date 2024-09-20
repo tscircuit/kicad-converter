@@ -1,16 +1,16 @@
 import * as CJ from "@tscircuit/soup"
 import type { KiCadPcb, Footprint, Pad, Segment, Net, Via } from "./types"
 import { transformPCBElements } from "@tscircuit/soup-util"
-import { scale } from "transformation-matrix"
-import { mapTscircuitLayerToKicadLayer } from "./kicad-pcb-to-circuit-json"
+import { scale, compose, translate } from "transformation-matrix"
+import { mapTscircuitLayerToKicadLayer } from "./convert-kicad-pcb-to-circuit-json"
 
 export function convertCircuitJsonToKiCadPcb(
   circuitJson: CJ.AnyCircuitElement[],
 ): KiCadPcb {
-  // Flip Y axis to match KiCad
   circuitJson = transformPCBElements(
     JSON.parse(JSON.stringify(circuitJson)),
-    scale(1, -1),
+    // Flip the Y axis and translate to center of A4 kicad sheet
+    compose(scale(1, -1), translate(148.5, -105)),
   ) as any
 
   const kicadPcb: KiCadPcb = {
@@ -351,7 +351,7 @@ function convertPcbPlatedHoleToFootprint(
         {
           type: "thru_hole",
           shape: platedHole.shape === "circle" ? "circle" : "rect",
-          at: [platedHole.x, platedHole.y],
+          at: [0, 0],
           size: [platedHole.outer_diameter, platedHole.outer_diameter],
           drill: platedHole.hole_diameter,
           layers: platedHole.layers.map(
@@ -372,7 +372,7 @@ function convertPcbPlatedHoleToFootprint(
         {
           type: "thru_hole",
           shape: "oval",
-          at: [platedHole.x, platedHole.y],
+          at: [0, 0],
           size: [platedHole.outer_width, platedHole.outer_height],
           drill: platedHole.hole_width,
           layers: platedHole.layers.map(

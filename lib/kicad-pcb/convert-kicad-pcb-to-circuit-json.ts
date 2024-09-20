@@ -49,6 +49,8 @@ export function convertKiCadPcbToCircuitJson(
   //   }
   // }
 
+  // Center the circuit about (0,0)
+
   // Flip Y axis to match KiCad
   transformPCBElements(circuitJsonArray, scale(1, -1))
 
