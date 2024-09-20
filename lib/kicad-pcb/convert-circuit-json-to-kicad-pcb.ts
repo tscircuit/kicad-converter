@@ -241,7 +241,12 @@ export function convertCircuitJsonToKiCadPcb(
       case "pcb_via":
         kicadPcb.vias.push(convertPcbViaToVia(element as CJ.PCBVia))
         break
-      // Add more cases for other element types as needed
+      case "pcb_hole":
+        kicadPcb.footprints.push(convertPcbHoleToFootprint(element as CJ.PCBHole))
+        break
+      case "pcb_plated_hole":
+        kicadPcb.footprints.push(convertPcbPlatedHoleToFootprint(element as CJ.PCBPlatedHole))
+        break
     }
   })
 
@@ -262,6 +267,48 @@ function convertPcbViaToVia(via: CJ.PCBVia): Via {
     net: 0, // Assuming default net 0, update if net information is available
     uuid: `via_${via.x}_${via.y}`,
   }
+}
+
+function convertPcbHoleToFootprint(hole: CJ.PCBHole): Footprint {
+  return {
+    footprint: "MountingHole",
+    layer: "F.Cu", // Assuming top layer, adjust if needed
+    uuid: hole.pcb_hole_id || generateUniqueId(),
+    at: { x: hole.x, y: hole.y },
+    pads: [
+      {
+        type: "np_thru_hole",
+        shape: hole.hole_shape === "round" ? "circle" : "rect",
+        at: [0, 0],
+        size: [hole.hole_diameter, hole.hole_diameter],
+        drill: hole.hole_diameter,
+        layers: ["*.Cu", "*.Mask"],
+      },
+    ],
+  }
+}
+
+function convertPcbPlatedHoleToFootprint(platedHole: CJ.PCBPlatedHole): Footprint {
+  return {
+    footprint: "PlatedHole",
+    layer: "F.Cu", // Assuming top layer, adjust if needed
+    uuid: platedHole.pcb_plated_hole_id || generateUniqueId(),
+    at: { x: platedHole.x, y: platedHole.y },
+    pads: [
+      {
+        type: "thru_hole",
+        shape: platedHole.shape === "circle" ? "circle" : "rect",
+        at: [0, 0],
+        size: [platedHole.outer_diameter, platedHole.outer_diameter],
+        drill: platedHole.hole_diameter,
+        layers: platedHole.layers,
+      },
+    ],
+  }
+}
+
+function generateUniqueId(): string {
+  return "id_" + Math.random().toString(36).substr(2, 9)
 }
 
 function convertPcbComponentToFootprint(
