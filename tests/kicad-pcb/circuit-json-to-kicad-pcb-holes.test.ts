@@ -10,7 +10,7 @@ test("circuit json to kicad pcb with holes and plated holes", () => {
       x: 10,
       y: 10,
       hole_diameter: 2,
-      hole_shape: "round",
+      hole_shape: "circle",
     },
     {
       type: "pcb_plated_hole",

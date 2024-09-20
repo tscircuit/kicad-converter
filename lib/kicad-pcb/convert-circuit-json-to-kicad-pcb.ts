@@ -10,7 +10,7 @@ export function convertCircuitJsonToKiCadPcb(
   circuitJson = transformPCBElements(
     JSON.parse(JSON.stringify(circuitJson)),
     scale(1, -1),
-  )
+  ) as any
 
   const kicadPcb: KiCadPcb = {
     version: 20240108,
@@ -306,9 +306,7 @@ function convertPcbHoleToFootprint(hole: CJ.PCBHole): Footprint {
           type: "np_thru_hole",
           shape: "circle",
           at: [0, 0],
-          // @ts-expect-error
           size: [hole.hole_width, hole.hole_height],
-          // @ts-expect-error
           drill: hole.hole_width,
           layers: ["*.Cu", "*.Mask"],
           number: "",
