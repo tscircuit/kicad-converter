@@ -17,6 +17,10 @@ test("circuit json to kicad pcb2", () => {
 
   const reconvertedCircuitJson = convertKiCadPcbToCircuitJson(kicadPcb)
 
+  expect(
+    reconvertedCircuitJson.filter((elm) => elm.type === "pcb_hole"),
+  ).toHaveLength(2 * 9)
+
   expect(circuitJsonToPcbSvg(reconvertedCircuitJson)).toMatchSvgSnapshot(
     import.meta.path,
   )
