@@ -5,9 +5,15 @@ import { convertCircuitJsonToKiCadPcb } from "lib/kicad-pcb/convert-circuit-json
 import { convertKiCadPcbToSExprString } from "lib/kicad-pcb/convert-kicad-pcb-to-sexpr-string"
 import macrokeypadCircuitJson from "tests/assets/macrokeypad/macrokeypad.json"
 import { convertKiCadPcbToCircuitJson } from "lib/kicad-pcb/convert-kicad-pcb-to-circuit-json"
+import { MacroKeypad } from "tests/fixtures/keyboard"
 
 test("circuit json to kicad pcb2", () => {
-  const kicadPcb = convertCircuitJsonToKiCadPcb(macrokeypadCircuitJson as any)
+  const circuit = new Circuit()
+
+  circuit.add(<MacroKeypad />)
+  circuit.render()
+
+  const kicadPcb = convertCircuitJsonToKiCadPcb(circuit.getCircuitJson())
 
   const reconvertedCircuitJson = convertKiCadPcbToCircuitJson(kicadPcb)
 

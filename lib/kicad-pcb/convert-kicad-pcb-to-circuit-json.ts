@@ -83,8 +83,8 @@ function convertFootprintToPcbComponent(footprint: Footprint): CJ.PcbComponent {
 function convertPadToPcbPad(
   pad: Pad,
   footprint: Footprint,
-): (CJ.PCBSMTPad | CJ.PCBPlatedHole)[] {
-  const pads: (CJ.PCBSMTPad | CJ.PCBPlatedHole)[] = []
+): (CJ.PCBSMTPad | CJ.PCBPlatedHole | CJ.PCBHole)[] {
+  const pads: (CJ.PCBSMTPad | CJ.PCBPlatedHole | CJ.PCBHole)[] = []
   const position = {
     x: pad.at[0] + footprint.at.x,
     y: pad.at[1] + footprint.at.y,
@@ -165,6 +165,18 @@ function convertPadToPcbPad(
         pcb_plated_hole.error,
       )
     }
+  } else if (pad.type === "np_thru_hole") {
+    const pcb_hole = CJ.pcb_hole.parse({
+      type: "pcb_hole",
+      pcb_hole_id: pad.uuid || generateUniqueId(),
+      shape: "circle",
+      x: position.x,
+      y: position.y,
+      outer_diameter: pad.size[0],
+      hole_diameter: pad.drill || pad.size[0] * 0.5,
+    })
+
+    pads.push(pcb_hole)
   }
   return pads
 }
