@@ -28,5 +28,11 @@
       "lib/*": ["lib/*"]
     }
   },
-  "include": ["src/**/*.ts", "tests/**/*.ts", "tests/assets/**/*.kicad_pcb", "tests/assets/**/*.kicad_sch", "tests/**/*.tsx"]
+  "include": [
+    "src/**/*.ts",
+    "tests/**/*.ts",
+    "tests/assets/**/*.kicad_pcb",
+    "tests/assets/**/*.kicad_sch",
+    "tests/**/*.tsx"
+  ]
 }

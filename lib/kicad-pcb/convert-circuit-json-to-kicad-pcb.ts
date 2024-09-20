@@ -242,10 +242,14 @@ export function convertCircuitJsonToKiCadPcb(
         kicadPcb.vias.push(convertPcbViaToVia(element as CJ.PCBVia))
         break
       case "pcb_hole":
-        kicadPcb.footprints.push(convertPcbHoleToFootprint(element as CJ.PCBHole))
+        kicadPcb.footprints.push(
+          convertPcbHoleToFootprint(element as CJ.PCBHole),
+        )
         break
       case "pcb_plated_hole":
-        kicadPcb.footprints.push(convertPcbPlatedHoleToFootprint(element as CJ.PCBPlatedHole))
+        kicadPcb.footprints.push(
+          convertPcbPlatedHoleToFootprint(element as CJ.PCBPlatedHole),
+        )
         break
     }
   })
@@ -288,7 +292,9 @@ function convertPcbHoleToFootprint(hole: CJ.PCBHole): Footprint {
   }
 }
 
-function convertPcbPlatedHoleToFootprint(platedHole: CJ.PCBPlatedHole): Footprint {
+function convertPcbPlatedHoleToFootprint(
+  platedHole: CJ.PCBPlatedHole,
+): Footprint {
   return {
     footprint: "PlatedHole",
     layer: "F.Cu", // Assuming top layer, adjust if needed
