@@ -168,7 +168,7 @@ export interface FpText {
 // Pad within a footprint
 export interface Pad {
   number: string
-  type: "thru_hole" | "smd"
+  type: "np_thru_hole" | "thru_hole" | "smd"
   drill?: number
   shape: "rect" | "roundrect" | "oval" | "circle"
   at: [number, number]

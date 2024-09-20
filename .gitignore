@@ -182,3 +182,4 @@ test-artifact*
 *.lck
 fp-info-cache
 *-backups
+package-lock.json

@@ -175,7 +175,7 @@ function parsePinNumbers(sexpr: SExpr): PinNumbers {
 }
 
 function parsePinNames(sexpr: SExpr): PinNames {
-  const pinNames: PinNames = {}
+  const pinNames: PinNames = {} as any
   for (const element of sexpr.slice(1)) {
     if (!Array.isArray(element)) continue
     const [key, value] = element
@@ -561,7 +561,7 @@ function parseSheetInstances(sexpr: SExpr): SheetInstances {
 
 function parseSheetPath(sexpr: SExpr): SheetPath {
   const [, pathStr, ...args] = sexpr
-  const sheetPath: SheetPath = { path: pathStr as string }
+  const sheetPath: SheetPath = { path: pathStr as string, page: "" }
   for (const element of args) {
     if (!Array.isArray(element)) continue
     const [key, value] = element

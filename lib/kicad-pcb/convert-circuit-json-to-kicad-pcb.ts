@@ -10,7 +10,7 @@ export function convertCircuitJsonToKiCadPcb(
   circuitJson = transformPCBElements(
     JSON.parse(JSON.stringify(circuitJson)),
     scale(1, -1),
-  )
+  ) as any
 
   const kicadPcb: KiCadPcb = {
     version: 20240108,
@@ -241,7 +241,16 @@ export function convertCircuitJsonToKiCadPcb(
       case "pcb_via":
         kicadPcb.vias.push(convertPcbViaToVia(element as CJ.PCBVia))
         break
-      // Add more cases for other element types as needed
+      case "pcb_hole":
+        kicadPcb.footprints.push(
+          convertPcbHoleToFootprint(element as CJ.PCBHole),
+        )
+        break
+      case "pcb_plated_hole":
+        kicadPcb.footprints.push(
+          convertPcbPlatedHoleToFootprint(element as CJ.PCBPlatedHole),
+        )
+        break
     }
   })
 
@@ -262,6 +271,117 @@ function convertPcbViaToVia(via: CJ.PCBVia): Via {
     net: 0, // Assuming default net 0, update if net information is available
     uuid: `via_${via.x}_${via.y}`,
   }
+}
+
+function convertPcbHoleToFootprint(hole: CJ.PCBHole): Footprint {
+  // @ts-ignore
+  if (hole.hole_shape === "round") hole.hole_shape = "circle"
+
+  if (hole.hole_shape === "circle") {
+    return {
+      footprint: "MountingHole",
+      layer: "F.Cu",
+      uuid: hole.pcb_hole_id || generateUniqueId(),
+      at: { x: hole.x, y: hole.y },
+      pads: [
+        {
+          type: "np_thru_hole",
+          shape: "circle",
+          at: [0, 0],
+          size: [hole.hole_diameter, hole.hole_diameter],
+          drill: hole.hole_diameter,
+          layers: ["*.Cu", "*.Mask"],
+          number: "",
+        },
+      ],
+    }
+  } else if (hole.hole_shape === "oval") {
+    return {
+      footprint: "MountingHole",
+      layer: "F.Cu",
+      uuid: hole.pcb_hole_id || generateUniqueId(),
+      at: { x: hole.x, y: hole.y },
+      pads: [
+        {
+          type: "np_thru_hole",
+          shape: "circle",
+          at: [0, 0],
+          size: [hole.hole_width, hole.hole_height],
+          drill: hole.hole_width,
+          layers: ["*.Cu", "*.Mask"],
+          number: "",
+        },
+      ],
+    }
+  } else if (hole.hole_shape === "square") {
+    return {
+      footprint: "MountingHole",
+      layer: "F.Cu",
+      uuid: hole.pcb_hole_id || generateUniqueId(),
+      at: { x: hole.x, y: hole.y },
+      pads: [
+        {
+          type: "np_thru_hole",
+          shape: "rect",
+          at: [0, 0],
+          size: [hole.hole_diameter, hole.hole_diameter],
+          drill: hole.hole_diameter,
+          layers: ["*.Cu", "*.Mask"],
+          number: "",
+        },
+      ],
+    }
+  }
+  throw new Error(`Unknown hole shape: ${hole.hole_shape}`)
+}
+
+function convertPcbPlatedHoleToFootprint(
+  platedHole: CJ.PCBPlatedHole,
+): Footprint {
+  const number = platedHole.port_hints?.find((ph) => ph.match(/^\d+$/)) || ""
+  if (platedHole.shape === "circle") {
+    return {
+      footprint: "PlatedHole",
+      layer: "F.Cu", // Assuming top layer, adjust if needed
+      uuid: platedHole.pcb_plated_hole_id || generateUniqueId(),
+      at: { x: platedHole.x, y: platedHole.y },
+      pads: [
+        {
+          type: "thru_hole",
+          shape: platedHole.shape === "circle" ? "circle" : "rect",
+          at: [platedHole.x, platedHole.y],
+          size: [platedHole.outer_diameter, platedHole.outer_diameter],
+          drill: platedHole.hole_diameter,
+          layers: platedHole.layers,
+          number,
+        },
+      ],
+    }
+  } else if (platedHole.shape === "oval" || platedHole.shape === "pill") {
+    // TODO handle pill shape properly
+    return {
+      footprint: "PlatedHole",
+      layer: "F.Cu", // Assuming top layer, adjust if needed
+      uuid: platedHole.pcb_plated_hole_id || generateUniqueId(),
+      at: { x: platedHole.x, y: platedHole.y },
+      pads: [
+        {
+          type: "thru_hole",
+          shape: "oval",
+          at: [platedHole.x, platedHole.y],
+          size: [platedHole.outer_width, platedHole.outer_height],
+          drill: platedHole.hole_width,
+          layers: platedHole.layers,
+          number,
+        },
+      ],
+    }
+  }
+  throw new Error(`Unknown plated hole shape: ${platedHole.shape}`)
+}
+
+function generateUniqueId(): string {
+  return "id_" + Math.random().toString(36).substr(2, 9)
 }
 
 function convertPcbComponentToFootprint(
