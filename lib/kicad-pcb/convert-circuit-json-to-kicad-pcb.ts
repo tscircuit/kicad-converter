@@ -395,8 +395,8 @@ function convertPcbComponentToFootprint(
     at: {
       x: component.center.x,
       y: component.center.y,
-      // @ts-expect-error
-      rotation: component.rotation ? parseFloat(component.rotation) : 0,
+      // We don't rotate because Circuit JSON coordinates are pre-rotated
+      // rotation: component.rotation ? parseFloat(component.rotation) : 0,
     },
     pads: [],
   }
