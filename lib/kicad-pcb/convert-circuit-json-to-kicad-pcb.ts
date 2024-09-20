@@ -2,6 +2,7 @@ import * as CJ from "@tscircuit/soup"
 import type { KiCadPcb, Footprint, Pad, Segment, Net, Via } from "./types"
 import { transformPCBElements } from "@tscircuit/soup-util"
 import { scale } from "transformation-matrix"
+import { mapTscircuitLayerToKicadLayer } from "./kicad-pcb-to-circuit-json"
 
 export function convertCircuitJsonToKiCadPcb(
   circuitJson: CJ.AnyCircuitElement[],
@@ -225,6 +226,7 @@ export function convertCircuitJsonToKiCadPcb(
   const netMap = new Map<string, number>()
   let netCounter = 1
 
+  let viaCount = 0
   circuitJson.forEach((element) => {
     switch (element.type) {
       case "pcb_component":
@@ -267,7 +269,7 @@ function convertPcbViaToVia(via: CJ.PCBVia): Via {
     at: [via.x, via.y],
     size: via.outer_diameter,
     drill: via.hole_diameter,
-    layers: via.layers,
+    layers: via.layers.map((l) => mapTscircuitLayerToKicadLayer(l)!),
     net: 0, // Assuming default net 0, update if net information is available
     uuid: `via_${via.x}_${via.y}`,
   }
@@ -352,7 +354,9 @@ function convertPcbPlatedHoleToFootprint(
           at: [platedHole.x, platedHole.y],
           size: [platedHole.outer_diameter, platedHole.outer_diameter],
           drill: platedHole.hole_diameter,
-          layers: platedHole.layers,
+          layers: platedHole.layers.map(
+            (l) => mapTscircuitLayerToKicadLayer(l)!,
+          ),
           number,
         },
       ],
@@ -371,7 +375,9 @@ function convertPcbPlatedHoleToFootprint(
           at: [platedHole.x, platedHole.y],
           size: [platedHole.outer_width, platedHole.outer_height],
           drill: platedHole.hole_width,
-          layers: platedHole.layers,
+          layers: platedHole.layers.map(
+            (l) => mapTscircuitLayerToKicadLayer(l)!,
+          ),
           number,
         },
       ],

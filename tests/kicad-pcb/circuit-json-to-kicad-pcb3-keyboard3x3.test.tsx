@@ -15,5 +15,5 @@ test("example3-3x3-keyboard", () => {
 
   const sexpr = convertKiCadPcbToSExprString(kicadPcb)
 
-  // Bun.write("test-artifact.kicad_pcb", sexpr)
+  Bun.write("test-artifact.kicad_pcb", sexpr)
 })

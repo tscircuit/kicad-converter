@@ -6,6 +6,7 @@ import type {
   Net,
   Layer,
   PcbPlotParams,
+  Via,
 } from "./types"
 
 export function convertKiCadPcbToSExprString(kicadPcb: KiCadPcb): string {
@@ -59,6 +60,11 @@ export function convertKiCadPcbToSExprString(kicadPcb: KiCadPcb): string {
   // Segments
   kicadPcb.segments.forEach((segment) => {
     lines.push(convertSegmentToSExpr(segment))
+  })
+
+  // Vias
+  kicadPcb.vias?.forEach((via) => {
+    lines.push(convertViaToSExpr(via))
   })
 
   lines.push(")")
@@ -119,4 +125,8 @@ function convertPadToSExpr(pad: Pad): string {
 
 function convertSegmentToSExpr(segment: Segment): string {
   return `  (segment (start ${segment.start[0]} ${segment.start[1]}) (end ${segment.end[0]} ${segment.end[1]}) (width ${segment.width}) (layer "${segment.layer}") (net ${segment.net}))`
+}
+
+function convertViaToSExpr(via: Via): string {
+  return `  (via (at ${via.at[0]} ${via.at[1]}) (size ${via.size}) (drill ${via.drill}) (layers ${via.layers.join(" ")}) (net ${via.net})${via.uuid ? ` (uuid ${via.uuid})` : ""})`
 }
