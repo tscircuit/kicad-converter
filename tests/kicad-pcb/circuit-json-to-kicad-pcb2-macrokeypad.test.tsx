@@ -1,6 +1,6 @@
 import { test, expect } from "bun:test"
 import { Circuit } from "@tscircuit/core"
-import { circuitJsonToPcbSvg } from "circuit-to-svg"
+import { circuitJsonToPcbSvg, convertCircuitJsonToPcbSvg } from "circuit-to-svg"
 import { convertCircuitJsonToKiCadPcb } from "lib/kicad-pcb/convert-circuit-json-to-kicad-pcb"
 import { convertKiCadPcbToSExprString } from "lib/kicad-pcb/convert-kicad-pcb-to-sexpr-string"
 import macrokeypadCircuitJson from "tests/assets/macrokeypad/macrokeypad.json"
@@ -21,7 +21,7 @@ test("circuit json to kicad pcb2", () => {
     reconvertedCircuitJson.filter((elm) => elm.type === "pcb_hole"),
   ).toHaveLength(2 * 9)
 
-  expect(circuitJsonToPcbSvg(reconvertedCircuitJson)).toMatchSvgSnapshot(
+  expect(convertCircuitJsonToPcbSvg(reconvertedCircuitJson)).toMatchSvgSnapshot(
     import.meta.path,
   )
 })
