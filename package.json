@@ -11,7 +11,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.2",
-    "@tscircuit/core": "^0.0.70",
+    "@tscircuit/core": "^0.0.76",
     "@tscircuit/soup": "^0.0.73",
     "@types/bun": "latest",
     "@types/react": "^18.3.6",
@@ -26,6 +26,7 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
-    "@tscircuit/soup-util": "^0.0.30"
+    "@tscircuit/soup-util": "^0.0.30",
+    "circuit-json-to-connectivity-map": "^0.0.16"
   }
 }
