@@ -1,4 +1,4 @@
-import type { SExpr } from "../common/parse-sexpr"
+import { parseSExpr, type SExpr } from "../common/parse-sexpr"
 import type {
   At,
   Effects,
@@ -24,7 +24,11 @@ import { KiCadPcbSchema } from "./zod"
 
 // Now, we'll write functions to convert the parsed s-expressions into our TypeScript types.
 
-export function parseKiCadPcb(sexpr: SExpr): KiCadPcb {
+export function parseKiCadPcb(sexpr: SExpr | string): KiCadPcb {
+  if (typeof sexpr === "string") {
+    sexpr = parseSExpr(sexpr)
+  }
+
   if (!Array.isArray(sexpr)) {
     throw new Error("Invalid KiCad Pcb format")
   }
