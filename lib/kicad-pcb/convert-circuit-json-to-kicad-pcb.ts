@@ -1,5 +1,13 @@
 import * as CJ from "@tscircuit/soup"
-import type { KiCadPcb, Footprint, Pad, Segment, Net, Via } from "./types"
+import type {
+  KiCadPcb,
+  Footprint,
+  Pad,
+  Segment,
+  Net,
+  Via,
+  GrLine,
+} from "./types"
 import { transformPCBElements } from "@tscircuit/soup-util"
 import { scale, compose, translate } from "transformation-matrix"
 import { mapTscircuitLayerToKicadLayer } from "./convert-kicad-pcb-to-circuit-json"
@@ -253,6 +261,9 @@ export function convertCircuitJsonToKiCadPcb(
           convertPcbPlatedHoleToFootprint(element as CJ.PCBPlatedHole),
         )
         break
+      case "pcb_board":
+        kicadPcb.gr_lines = convertPcbBoardToEdgeCuts(element as CJ.PCBBoard)
+        break
     }
   })
 
@@ -262,6 +273,41 @@ export function convertCircuitJsonToKiCadPcb(
   })
 
   return kicadPcb
+}
+
+function convertPcbBoardToEdgeCuts(board: CJ.PCBBoard): GrLine[] {
+  const edgeCuts: GrLine[] = []
+  const outline = board.outline || [
+    {
+      x: board.center.x - board.width / 2,
+      y: board.center.y + board.height / 2,
+    },
+    {
+      x: board.center.x + board.width / 2,
+      y: board.center.y + board.height / 2,
+    },
+    {
+      x: board.center.x + board.width / 2,
+      y: board.center.y - board.height / 2,
+    },
+    {
+      x: board.center.x - board.width / 2,
+      y: board.center.y - board.height / 2,
+    },
+  ]
+
+  for (let i = 0; i < outline.length; i++) {
+    const start = outline[i]
+    const end = outline[(i + 1) % outline.length]
+    edgeCuts.push({
+      start: [start.x, start.y],
+      end: [end.x, end.y],
+      layer: "Edge.Cuts",
+      width: 0.1,
+    })
+  }
+
+  return edgeCuts
 }
 
 function convertPcbViaToVia(via: CJ.PCBVia): Via {

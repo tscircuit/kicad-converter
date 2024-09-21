@@ -7,6 +7,7 @@ import type {
   Layer,
   PcbPlotParams,
   Via,
+  GrLine,
 } from "./types"
 
 export function convertKiCadPcbToSExprString(kicadPcb: KiCadPcb): string {
@@ -65,6 +66,11 @@ export function convertKiCadPcbToSExprString(kicadPcb: KiCadPcb): string {
   // Vias
   kicadPcb.vias?.forEach((via) => {
     lines.push(convertViaToSExpr(via))
+  })
+
+  // GrLines (Edge Cuts)
+  kicadPcb.gr_lines?.forEach((grLine) => {
+    lines.push(convertGrLineToSExpr(grLine))
   })
 
   lines.push(")")
@@ -133,4 +139,8 @@ function surroundWithQuotes(value: string): string {
 
 function convertViaToSExpr(via: Via): string {
   return `  (via (at ${via.at[0]} ${via.at[1]}) (size ${via.size}) (drill ${via.drill}) (layers ${via.layers.map(surroundWithQuotes).join(" ")}) (net ${via.net})${via.uuid ? ` (uuid "${via.uuid}")` : ""})`
+}
+
+function convertGrLineToSExpr(grLine: GrLine): string {
+  return `  (gr_line (start ${grLine.start[0]} ${grLine.start[1]}) (end ${grLine.end[0]} ${grLine.end[1]}) (layer "${grLine.layer}") (width ${grLine.width}))`
 }

@@ -12,8 +12,16 @@ export interface KiCadPcb {
   nets: Net[]
   footprints: Footprint[]
   gr_rects: GrRect[]
+  gr_lines?: GrLine[]
   segments: Segment[]
   vias: Via[]
+}
+
+export interface GrLine {
+  start: [number, number]
+  end: [number, number]
+  layer: string
+  width: number
 }
 
 export interface Via {
