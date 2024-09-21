@@ -125,6 +125,9 @@ function convertPadToSExpr(pad: Pad): string {
   if (pad.net) {
     lines.push(`      (net ${pad.net.id} "${pad.net.name}")`)
   }
+  if (pad.drill) {
+    lines.push(`      (drill ${pad.drill})`)
+  }
   lines.push("    )")
   return lines.join("\n")
 }

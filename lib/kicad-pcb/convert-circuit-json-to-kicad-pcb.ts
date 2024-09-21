@@ -7,14 +7,24 @@ import type {
   Net,
   Via,
   GrLine,
+  NetReference,
 } from "./types"
 import { transformPCBElements } from "@tscircuit/soup-util"
 import { scale, compose, translate } from "transformation-matrix"
 import { mapTscircuitLayerToKicadLayer } from "./convert-kicad-pcb-to-circuit-json"
+import {
+  ConnectivityMap,
+  getFullConnectivityMapFromCircuitJson,
+} from "circuit-json-to-connectivity-map"
 
 export function convertCircuitJsonToKiCadPcb(
   circuitJson: CJ.AnyCircuitElement[],
 ): KiCadPcb {
+  /**
+   * Use this connectivity map to find the net for any id, e.g.
+   * connMap.getNetConnectedToId("source_port_id") // "connectivity_net4"
+   */
+  const connMap = getFullConnectivityMapFromCircuitJson(circuitJson)
   circuitJson = transformPCBElements(
     JSON.parse(JSON.stringify(circuitJson)),
     // Flip the Y axis and translate to center of A4 kicad sheet
@@ -231,25 +241,18 @@ export function convertCircuitJsonToKiCadPcb(
     vias: [],
   }
 
-  const netMap = new Map<string, number>()
-  let netCounter = 1
-
-  let viaCount = 0
   circuitJson.forEach((element) => {
     switch (element.type) {
       case "pcb_component":
         kicadPcb.footprints.push(
-          convertPcbComponentToFootprint(element, circuitJson),
+          convertPcbComponentToFootprint(element, circuitJson, connMap),
         )
         break
       case "pcb_trace":
-        kicadPcb.segments.push(
-          ...convertPcbTraceToSegments(element, netMap, netCounter),
-        )
-        netCounter = Math.max(netCounter, ...Array.from(netMap.values())) + 1
+        kicadPcb.segments.push(...convertPcbTraceToSegments(element, connMap))
         break
       case "pcb_via":
-        kicadPcb.vias.push(convertPcbViaToVia(element as CJ.PCBVia))
+        kicadPcb.vias.push(convertPcbViaToVia(element as CJ.PCBVia, connMap))
         break
       case "pcb_hole":
         kicadPcb.footprints.push(
@@ -258,7 +261,7 @@ export function convertCircuitJsonToKiCadPcb(
         break
       case "pcb_plated_hole":
         kicadPcb.footprints.push(
-          convertPcbPlatedHoleToFootprint(element as CJ.PCBPlatedHole),
+          convertPcbPlatedHoleToFootprint(element as CJ.PCBPlatedHole, connMap),
         )
         break
       case "pcb_board":
@@ -268,9 +271,12 @@ export function convertCircuitJsonToKiCadPcb(
   })
 
   // Add nets to KiCad PCB
-  netMap.forEach((id, name) => {
-    kicadPcb.nets.push({ id, name })
-  })
+  for (const [netId, connections] of Object.entries(connMap.netMap)) {
+    kicadPcb.nets.push({
+      id: netIdToNumber(netId),
+      name: netId,
+    })
+  }
 
   return kicadPcb
 }
@@ -310,13 +316,15 @@ function convertPcbBoardToEdgeCuts(board: CJ.PCBBoard): GrLine[] {
   return edgeCuts
 }
 
-function convertPcbViaToVia(via: CJ.PCBVia): Via {
+function convertPcbViaToVia(via: CJ.PCBVia, connMap: ConnectivityMap): Via {
   return {
     at: [via.x, via.y],
     size: via.outer_diameter,
     drill: via.hole_diameter,
     layers: via.layers.map((l) => mapTscircuitLayerToKicadLayer(l)!),
-    net: 0, // Assuming default net 0, update if net information is available
+    // TODO: Waiting on pcb_trace_id being available in Circuit JSON before we
+    // can add nets for vias
+    net: 0,
     uuid: `via_${via.x}_${via.y}`,
   }
 }
@@ -385,6 +393,7 @@ function convertPcbHoleToFootprint(hole: CJ.PCBHole): Footprint {
 
 function convertPcbPlatedHoleToFootprint(
   platedHole: CJ.PCBPlatedHole,
+  connMap: ConnectivityMap,
 ): Footprint {
   const number = platedHole.port_hints?.find((ph) => ph.match(/^\d+$/)) || ""
   if (platedHole.shape === "circle") {
@@ -402,6 +411,9 @@ function convertPcbPlatedHoleToFootprint(
           drill: platedHole.hole_diameter,
           layers: platedHole.layers.map(
             (l) => mapTscircuitLayerToKicadLayer(l)!,
+          ),
+          net: netIdToNetRef(
+            connMap.getNetConnectedToId(platedHole.pcb_plated_hole_id!)!,
           ),
           number,
         },
@@ -424,6 +436,9 @@ function convertPcbPlatedHoleToFootprint(
           layers: platedHole.layers.map(
             (l) => mapTscircuitLayerToKicadLayer(l)!,
           ),
+          net: netIdToNetRef(
+            connMap.getNetConnectedToId(platedHole.pcb_plated_hole_id!)!,
+          ),
           number,
         },
       ],
@@ -439,6 +454,7 @@ function generateUniqueId(): string {
 function convertPcbComponentToFootprint(
   component: CJ.PcbComponent,
   allElements: CJ.AnyCircuitElement[],
+  connMap: ConnectivityMap,
 ): Footprint {
   const footprint: Footprint = {
     footprint: component.source_component_id,
@@ -458,7 +474,7 @@ function convertPcbComponentToFootprint(
       elm.type === "pcb_smtpad" &&
       elm.pcb_component_id === component.pcb_component_id
     ) {
-      const kicadPad = convertPcbSmtPadToPad(elm, component)
+      const kicadPad = convertPcbSmtPadToPad(elm, component, connMap)
       if (kicadPad) footprint.pads?.push(kicadPad)
     }
   }
@@ -477,11 +493,13 @@ function mapToKicadLayer(layer: CJ.LayerRef): string | undefined {
 function convertPcbSmtPadToPad(
   pad: CJ.PCBSMTPad,
   component: CJ.PcbComponent,
+  connMap: ConnectivityMap,
 ): Pad | null {
   if (pad.shape === "rect") {
     return {
       number: pad.port_hints?.find((ph) => ph.match(/^\d+$/)) || "",
       type: "smd",
+      net: netIdToNetRef(connMap.getNetConnectedToId(pad.pcb_smtpad_id)!),
       shape: "roundrect",
       at: [pad.x - component.center.x, pad.y - component.center.y],
       size: [pad.width, pad.height],
@@ -491,14 +509,21 @@ function convertPcbSmtPadToPad(
   return null
 }
 
+function netIdToNetRef(netId: string): NetReference {
+  return {
+    id: netIdToNumber(netId),
+    name: netId,
+  }
+}
+
 function convertPcbTraceToSegments(
   trace: CJ.PCBTrace,
-  netMap: Map<string, number>,
-  netCounter: number,
+  connMap: ConnectivityMap,
 ): Segment[] {
   const segments: Segment[] = []
-  // @ts-expect-error
-  const netId = getOrCreateNetId(trace.source_trace_id, netMap, netCounter)
+  const netId = netIdToNumber(
+    connMap.getNetConnectedToId(trace.source_trace_id!)!,
+  )
 
   for (let i = 0; i < trace.route.length - 1; i++) {
     const start = trace.route[i]
@@ -518,14 +543,10 @@ function convertPcbTraceToSegments(
   return segments
 }
 
-function getOrCreateNetId(
-  netName: string,
-  netMap: Map<string, number>,
-  netCounter: number,
-): number {
-  if (!netMap.has(netName)) {
-    netMap.set(netName, netCounter)
-    return netCounter
+function netIdToNumber(netId: string): number {
+  if (!netId) return 0
+  if (netId.startsWith("connectivity_net")) {
+    return parseInt(netId.replace("connectivity_net", ""))
   }
-  return netMap.get(netName)!
+  return 0
 }
