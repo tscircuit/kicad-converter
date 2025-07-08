@@ -1,6 +1,6 @@
 import { test, expect } from "bun:test"
 import { convertCircuitJsonToKiCadPcb } from "lib/kicad-pcb/convert-circuit-json-to-kicad-pcb"
-import * as CJ from "@tscircuit/soup"
+import * as CJ from "circuit-json"
 
 test("circuit json to kicad pcb with holes and plated holes", () => {
   const circuitJson: CJ.AnyCircuitElement[] = [
