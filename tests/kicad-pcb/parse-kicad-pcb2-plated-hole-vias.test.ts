@@ -26,7 +26,9 @@ test("parse-kicad-pcb2 - plated hole and vias", () => {
 
   expect(vias).toHaveLength(1)
 
-  expect(convertCircuitJsonToPcbSvg(circuitJson)).toMatchSvgSnapshot(import.meta.path)
+  expect(convertCircuitJsonToPcbSvg(circuitJson)).toMatchSvgSnapshot(
+    import.meta.path,
+  )
 
   // Test the new conversion functions
   const convertedKicadPcb = convertCircuitJsonToKiCadPcb(circuitJson)
