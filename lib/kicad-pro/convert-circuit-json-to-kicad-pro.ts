@@ -1,4 +1,4 @@
-import type { AnyCircuitElement } from "@tscircuit/soup"
+import type { AnyCircuitElement } from "circuit-json"
 import type { KicadProject } from "./types"
 
 export function convertCircuitJsonToKicadPro(
