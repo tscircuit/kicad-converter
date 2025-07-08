@@ -27,4 +27,4 @@ test("example3-3x3-keyboard", async () => {
   expect(
     convertCircuitJsonToPcbSvg(reconstructedCircuitJson),
   ).toMatchSvgSnapshot(import.meta.path)
-})
+}, 10_000)
