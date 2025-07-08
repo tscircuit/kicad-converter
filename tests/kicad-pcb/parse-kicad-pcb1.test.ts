@@ -8,7 +8,7 @@ import testKiCadPcb from "../assets/testkicadproject/testkicadproject.kicad_pcb"
 import { convertKiCadPcbToCircuitJson } from "lib/kicad-pcb/convert-kicad-pcb-to-circuit-json"
 import { convertCircuitJsonToKiCadPcb } from "lib/kicad-pcb/convert-circuit-json-to-kicad-pcb"
 import { convertKiCadPcbToSExprString } from "lib/kicad-pcb/convert-kicad-pcb-to-sexpr-string"
-import { convertCircuitJsonToPcbSvg} from "circuit-to-svg"
+import { convertCircuitJsonToPcbSvg } from "circuit-to-svg"
 
 test("parse-kicad-pcb1", () => {
   const sexpr = parseSExpr(testKiCadPcb)
@@ -20,7 +20,9 @@ test("parse-kicad-pcb1", () => {
 
   const circuitJson = convertKiCadPcbToCircuitJson(kicadPcb)
 
-  expect(convertCircuitJsonToPcbSvg(circuitJson)).toMatchSvgSnapshot(import.meta.path)
+  expect(convertCircuitJsonToPcbSvg(circuitJson)).toMatchSvgSnapshot(
+    import.meta.path,
+  )
 
   // Test the new conversion functions
   const convertedKicadPcb = convertCircuitJsonToKiCadPcb(circuitJson)
