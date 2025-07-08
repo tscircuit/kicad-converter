@@ -11,22 +11,18 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.2",
-    "@tscircuit/core": "^0.0.76",
-    "@tscircuit/soup": "^0.0.73",
     "@types/bun": "latest",
     "@types/react": "^18.3.6",
     "bun-match-svg": "^0.0.6",
     "circuit-to-svg": "^0.0.35",
     "performance-now": "^2.1.0",
     "react": "^18.3.1",
+    "tscircuit": "^0.0.522",
     "tsup": "^8.2.4",
     "zod": "^3.23.8"
   },
   "peerDependencies": {
-    "typescript": "^5.0.0"
-  },
-  "dependencies": {
-    "@tscircuit/soup-util": "^0.0.30",
-    "circuit-json-to-connectivity-map": "^0.0.16"
+    "typescript": "^5.0.0",
+    "zod": "*"
   }
 }

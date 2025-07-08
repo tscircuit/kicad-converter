@@ -9,7 +9,7 @@ import type {
   GrLine,
   NetReference,
 } from "./types"
-import { transformPCBElements } from "@tscircuit/soup-util"
+import { transformPCBElements } from "@tscircuit/circuit-json-util"
 import { scale, compose, translate } from "transformation-matrix"
 import { mapTscircuitLayerToKicadLayer } from "./convert-kicad-pcb-to-circuit-json"
 import {

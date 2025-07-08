@@ -1,6 +1,6 @@
 import type { Footprint, GrRect, KiCadPcb, Pad, Segment, Via } from "./types"
 import * as CJ from "@tscircuit/soup"
-import { transformPCBElements } from "@tscircuit/soup-util"
+import { transformPCBElements } from "@tscircuit/circuit-json-util"
 import { scale } from "transformation-matrix"
 
 export function convertKiCadPcbToCircuitJson(

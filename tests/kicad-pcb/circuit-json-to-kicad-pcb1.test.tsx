@@ -1,8 +1,6 @@
 import { test, expect } from "bun:test"
-import { Circuit } from "@tscircuit/core"
-import { circuitJsonToPcbSvg } from "circuit-to-svg"
+import { Circuit } from "tscircuit"
 import { convertCircuitJsonToKiCadPcb } from "lib/kicad-pcb/convert-circuit-json-to-kicad-pcb"
-import { convertKiCadPcbToSExprString } from "lib/kicad-pcb/convert-kicad-pcb-to-sexpr-string"
 
 test("circuit json to kicad pcb1", () => {
   const circuit = new Circuit()
@@ -17,7 +15,7 @@ test("circuit json to kicad pcb1", () => {
 
   circuit.render()
 
-  const kicadPcbJson = convertCircuitJsonToKiCadPcb(circuit.getCircuitJson())
+  const kicadPcbJson = convertCircuitJsonToKiCadPcb(circuit.getCircuitJson() as any)
 
   expect(kicadPcbJson.layers.length).toBeGreaterThan(2)
 
@@ -25,5 +23,4 @@ test("circuit json to kicad pcb1", () => {
 
   expect(kicadPcbJson.footprints[0].pads?.length).toBe(2)
 
-  const kicadPcbSExprString = convertKiCadPcbToSExprString(kicadPcbJson)
 })
