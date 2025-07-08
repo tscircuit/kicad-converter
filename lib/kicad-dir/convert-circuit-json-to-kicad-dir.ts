@@ -1,5 +1,5 @@
 import type { KicadDir } from "./types"
-import type { AnyCircuitElement } from "@tscircuit/soup"
+import type { AnyCircuitElement } from "circuit-json"
 
 export function convertCircuitJsonToKicadDir(
   circuitJson: AnyCircuitElement[],

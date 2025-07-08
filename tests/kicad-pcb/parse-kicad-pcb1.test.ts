@@ -1,7 +1,6 @@
 import { test, expect } from "bun:test"
 import { parseKiCadPcb } from "lib/kicad-pcb/parse-kicad-pcb-sexpr"
 import { parseSExpr } from "lib/common/parse-sexpr"
-import { KiCadPcbSchema } from "lib/kicad-pcb/zod"
 // @ts-ignore
 import testKiCadPcb from "../assets/testkicadproject/testkicadproject.kicad_pcb" with {
   type: "text",
@@ -9,9 +8,7 @@ import testKiCadPcb from "../assets/testkicadproject/testkicadproject.kicad_pcb"
 import { convertKiCadPcbToCircuitJson } from "lib/kicad-pcb/convert-kicad-pcb-to-circuit-json"
 import { convertCircuitJsonToKiCadPcb } from "lib/kicad-pcb/convert-circuit-json-to-kicad-pcb"
 import { convertKiCadPcbToSExprString } from "lib/kicad-pcb/convert-kicad-pcb-to-sexpr-string"
-import { circuitJsonToPcbSvg } from "circuit-to-svg"
-import { any_circuit_element } from "@tscircuit/soup"
-import { z } from "zod"
+import { convertCircuitJsonToPcbSvg } from "circuit-to-svg"
 
 test("parse-kicad-pcb1", () => {
   const sexpr = parseSExpr(testKiCadPcb)
@@ -23,7 +20,9 @@ test("parse-kicad-pcb1", () => {
 
   const circuitJson = convertKiCadPcbToCircuitJson(kicadPcb)
 
-  expect(circuitJsonToPcbSvg(circuitJson)).toMatchSvgSnapshot(import.meta.path)
+  expect(convertCircuitJsonToPcbSvg(circuitJson)).toMatchSvgSnapshot(
+    import.meta.path,
+  )
 
   // Test the new conversion functions
   const convertedKicadPcb = convertCircuitJsonToKiCadPcb(circuitJson)
