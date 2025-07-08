@@ -15,12 +15,13 @@ test("circuit json to kicad pcb1", () => {
 
   circuit.render()
 
-  const kicadPcbJson = convertCircuitJsonToKiCadPcb(circuit.getCircuitJson() as any)
+  const kicadPcbJson = convertCircuitJsonToKiCadPcb(
+    circuit.getCircuitJson() as any,
+  )
 
   expect(kicadPcbJson.layers.length).toBeGreaterThan(2)
 
   expect(kicadPcbJson.footprints.length).toBe(2)
 
   expect(kicadPcbJson.footprints[0].pads?.length).toBe(2)
-
 })
