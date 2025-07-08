@@ -8,7 +8,7 @@ import testKiCadPcb2 from "../assets/platedholeandvias/platedholeandvias.kicad_p
 import { convertKiCadPcbToCircuitJson } from "lib/kicad-pcb/convert-kicad-pcb-to-circuit-json"
 import { convertCircuitJsonToKiCadPcb } from "lib/kicad-pcb/convert-circuit-json-to-kicad-pcb"
 import { convertKiCadPcbToSExprString } from "lib/kicad-pcb/convert-kicad-pcb-to-sexpr-string"
-import { circuitJsonToPcbSvg } from "circuit-to-svg"
+import { convertCircuitJsonToPcbSvg } from "circuit-to-svg"
 
 test("parse-kicad-pcb2 - plated hole and vias", () => {
   const sexpr = parseSExpr(testKiCadPcb2)
@@ -26,7 +26,9 @@ test("parse-kicad-pcb2 - plated hole and vias", () => {
 
   expect(vias).toHaveLength(1)
 
-  expect(circuitJsonToPcbSvg(circuitJson)).toMatchSvgSnapshot(import.meta.path)
+  expect(convertCircuitJsonToPcbSvg(circuitJson)).toMatchSvgSnapshot(
+    import.meta.path,
+  )
 
   // Test the new conversion functions
   const convertedKicadPcb = convertCircuitJsonToKiCadPcb(circuitJson)

@@ -1,6 +1,6 @@
 import type { Footprint, GrRect, KiCadPcb, Pad, Segment, Via } from "./types"
-import * as CJ from "@tscircuit/soup"
-import { transformPCBElements } from "@tscircuit/soup-util"
+import * as CJ from "circuit-json"
+import { transformPCBElements } from "@tscircuit/circuit-json-util"
 import { scale } from "transformation-matrix"
 
 export function convertKiCadPcbToCircuitJson(
@@ -169,10 +169,9 @@ function convertPadToPcbPad(
     const pcb_hole = CJ.pcb_hole.parse({
       type: "pcb_hole",
       pcb_hole_id: pad.uuid || generateUniqueId(),
-      shape: "circle",
+      hole_shape: "circle",
       x: position.x,
       y: position.y,
-      outer_diameter: pad.size[0],
       hole_diameter: pad.drill || pad.size[0] * 0.5,
     })
 
