@@ -24,7 +24,7 @@ test("circuit json to kicad pcb with holes and plated holes", () => {
     },
   ]
 
-  const kicadPcb = convertCircuitJsonToKiCadPcb(circuitJson)
+  const kicadPcb = convertCircuitJsonToKiCadPcb(circuitJson as any)
 
   expect(kicadPcb.footprints).toHaveLength(2)
 

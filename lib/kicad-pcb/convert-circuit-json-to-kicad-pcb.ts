@@ -1,4 +1,4 @@
-import * as CJ from "@tscircuit/soup"
+import * as CJ from "circuit-json"
 import type {
   KiCadPcb,
   Footprint,
