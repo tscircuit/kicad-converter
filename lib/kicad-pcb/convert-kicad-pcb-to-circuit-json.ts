@@ -1,7 +1,7 @@
-import type { Footprint, GrRect, KiCadPcb, Pad, Segment, Via } from "./types"
-import * as CJ from "circuit-json"
 import { transformPCBElements } from "@tscircuit/circuit-json-util"
+import * as CJ from "circuit-json"
 import { scale } from "transformation-matrix"
+import type { Footprint, GrRect, KiCadPcb, Pad, Segment, Via } from "./types"
 
 export function convertKiCadPcbToCircuitJson(
   kicadPcb: KiCadPcb,
@@ -176,6 +176,36 @@ function convertPadToPcbPad(
     })
 
     pads.push(pcb_hole)
+  } else if (pad.type === "custom" || pad.type === "connect") {
+    // "custom" pads use free-form primitives to define their shape; treat as SMD
+    // using their bounding box size so the pad is still represented in circuit-json.
+    // "connect" pads are mechanical/non-electrical SMD pads.
+    for (const kicadLayer of pad.layers) {
+      const layer = mapKicadLayerToTscircuitLayer(kicadLayer)
+      if (!layer) continue
+      const pcb_smtpad = CJ.pcb_smtpad.safeParse({
+        type: "pcb_smtpad",
+        pcb_smtpad_id: pad.uuid || generateUniqueId(),
+        shape: "rect",
+        x: position.x,
+        y: position.y,
+        width: pad.size[0],
+        height: pad.size[1],
+        layer: layer,
+        port_hints: [pad.number],
+        pcb_component_id: footprint.uuid || generateUniqueId(),
+        pcb_port_id: pad.uuid || generateUniqueId(),
+      })
+
+      if (pcb_smtpad.success) {
+        pads.push(pcb_smtpad.data)
+      } else {
+        console.warn(
+          `Failed to parse custom pcb_smtpad "${pad.uuid}"`,
+          pcb_smtpad.error,
+        )
+      }
+    }
   }
   return pads
 }
