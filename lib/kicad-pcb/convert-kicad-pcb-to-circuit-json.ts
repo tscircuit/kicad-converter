@@ -92,14 +92,19 @@ function convertPadToPcbPad(
 
   const padShape = pad.shape.toLowerCase()
 
-  if (pad.type === "smd") {
+  if (pad.type === "smd" || pad.type === "connect") {
     for (const kicadLayer of pad.layers) {
       const layer = mapKicadLayerToTscircuitLayer(kicadLayer)
       if (!layer) continue
       const pcb_smtpad = CJ.pcb_smtpad.safeParse({
         type: "pcb_smtpad",
         pcb_smtpad_id: pad.uuid || generateUniqueId(),
-        shape: padShape === "roundrect" ? "rect" : padShape,
+        shape:
+          padShape === "roundrect" ||
+          padShape === "custom" ||
+          padShape === "trapezoid"
+            ? "rect"
+            : padShape,
         x: position.x,
         y: position.y,
         width: pad.size[0],
