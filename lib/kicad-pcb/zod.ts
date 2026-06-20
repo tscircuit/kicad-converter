@@ -36,7 +36,7 @@ export const PcbPlotParamsSchema = z.object({
   viasonmask: yesnobool.optional(),
   mode: z.number().optional(),
   useauxorigin: yesnobool.optional(),
-  hpglpennumber: z.number(),
+  hpglpennumber: z.number().optional(), // dropped in KiCad 10
   hpglpenspeed: z.number().optional(),
   hpglpendiameter: z.number().optional(),
   pdf_front_fp_property_popups: yesnobool.optional(),

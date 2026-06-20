@@ -24,7 +24,38 @@ import { KiCadPcbSchema } from "./zod"
 
 // Now, we'll write functions to convert the parsed s-expressions into our TypeScript types.
 
+// KiCad 10 (board version 2024xxxx+) writes nets by NAME only: `(net "GND")`,
+// with no top-level numeric net table. KiCad <=9 writes `(net <id> "name")`
+// plus a numeric net table. Resolve both into a stable {id,name}, synthesizing
+// ids for the name-only form so downstream connectivity survives.
+let _netNameToId = new Map<string, number>()
+let _nextNetId = 1
+
+function resetNetRegistry() {
+  _netNameToId = new Map<string, number>()
+  _nextNetId = 1
+}
+
+function resolveNetRef(elem: SExpr): { id: number; name: string } {
+  const first = elem[1]
+  const isNumericId =
+    typeof first === "number" ||
+    (typeof first === "string" && /^\d+$/.test(first))
+  if (isNumericId) {
+    const id = Number(first)
+    const name = (elem[2] as string) ?? ""
+    if (name !== "") _netNameToId.set(name, id)
+    if (id >= _nextNetId) _nextNetId = id + 1
+    return { id, name }
+  }
+  const name = (first as string) ?? ""
+  if (name === "") return { id: 0, name: "" }
+  if (!_netNameToId.has(name)) _netNameToId.set(name, _nextNetId++)
+  return { id: _netNameToId.get(name)!, name }
+}
+
 export function parseKiCadPcb(sexpr: SExpr | string): KiCadPcb {
+  resetNetRegistry()
   if (typeof sexpr === "string") {
     sexpr = parseSExpr(sexpr)
   }
@@ -104,6 +135,17 @@ export function parseKiCadPcb(sexpr: SExpr | string): KiCadPcb {
         // Handle other elements as needed
         break
     }
+  }
+
+  // KiCad 10 has no top-level net table; rebuild it from the names seen on
+  // pads/segments/vias so the net list is complete and ids are consistent.
+  if (pcb.nets.length === 0 && _netNameToId.size > 0) {
+    pcb.nets = [
+      { id: 0, name: "" },
+      ...[..._netNameToId.entries()]
+        .map(([name, id]) => ({ id, name }))
+        .sort((a, b) => a.id - b.id),
+    ]
   }
 
   // @ts-ignore
@@ -208,10 +250,7 @@ function parsePcbPlotParams(sexpr: SExpr): PcbPlotParams {
 
 // Function to parse a 'net' element
 function parseNet(sexpr: SExpr): Net {
-  const id = Number(sexpr[1])
-  const name = sexpr[2] as string
-
-  return { id, name }
+  return resolveNetRef(sexpr)
 }
 
 // Function to parse a 'footprint' element
@@ -498,7 +537,7 @@ function parsePad(sexpr: SExpr): Pad {
         pad.roundrect_rratio = Number(elem[1])
         break
       case "net":
-        pad.net = { id: Number(elem[1]), name: elem[2] as string }
+        pad.net = resolveNetRef(elem)
         break
       case "pintype":
         pad.pintype = elem[1] as string
@@ -627,7 +666,7 @@ function parseSegment(sexpr: SExpr): Segment {
         segment.layer = elem[1] as string
         break
       case "net":
-        segment.net = Number(elem[1])
+        segment.net = resolveNetRef(elem).id
         break
       case "uuid":
         segment.uuid = elem[1] as string
@@ -670,7 +709,7 @@ function parseVia(sexpr: SExpr): Via {
         via.layers = elem.slice(1) as string[]
         break
       case "net":
-        via.net = Number(elem[1])
+        via.net = resolveNetRef(elem).id
         break
       case "uuid":
         via.uuid = elem[1] as string
