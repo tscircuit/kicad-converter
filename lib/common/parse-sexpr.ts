@@ -1,6 +1,8 @@
 // Utility types for parsing
 export type SExpr = string | SExpr[]
 
+type Token = string | { value: string }
+
 export function parseSExpr(input: string): SExpr {
   const tokens = tokenize(input)
   const [expr, _] = parseTokens(tokens)
@@ -12,8 +14,8 @@ export function parseSExpr(input: string): SExpr {
   return expr
 }
 
-function tokenize(input: string): string[] {
-  const tokens: string[] = []
+function tokenize(input: string): Token[] {
+  const tokens: Token[] = []
   let current = ""
   let inString = false
 
@@ -22,8 +24,8 @@ function tokenize(input: string): string[] {
 
     if (char === '"') {
       if (inString) {
-        // End of string
-        tokens.push(current)
+        // Keep quoted parentheses distinct from structural delimiters.
+        tokens.push({ value: current })
         current = ""
         inString = false
       } else {
@@ -53,7 +55,7 @@ function tokenize(input: string): string[] {
   return tokens
 }
 
-function parseTokens(tokens: string[], index = 0): [SExpr, number] {
+function parseTokens(tokens: Token[], index = 0): [SExpr, number] {
   const result: SExpr[] = []
 
   while (index < tokens.length) {
@@ -67,7 +69,7 @@ function parseTokens(tokens: string[], index = 0): [SExpr, number] {
     } else if (token === ")") {
       return [result, index + 1]
     } else {
-      result.push(token)
+      result.push(typeof token === "string" ? token : token.value)
       index += 1
     }
   }
